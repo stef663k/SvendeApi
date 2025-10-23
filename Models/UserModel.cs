@@ -19,5 +19,9 @@ public class UserModel
     [Compare("Password")]
     public string Password { get; set; }
     public bool IsActive { get; set; }
+    public Collection<UserRole> UserRoles { get; set; }
+    public Collection<PostModel> Posts { get; set; }
+    public Collection<CommentModel> Comments { get; set; }
+    
 
 }
