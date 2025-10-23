@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +20,10 @@ public class UserModel
     [Compare("Password")]
     public string Password { get; set; }
     public bool IsActive { get; set; }
-    public Collection<UserRole> UserRoles { get; set; }
-    public Collection<PostModel> Posts { get; set; }
-    public Collection<CommentModel> Comments { get; set; }
-    
+    public Collection<UserRole>? UserRoles { get; set; }
+    public Collection<PostModel>? Posts { get; set; }
+    public Collection<CommentModel>? Comments { get; set; }
+    public Collection<FollowerModel>? Followers { get; set; }
+    public Collection<FollowerModel>? Followees { get; set; }
 
 }
