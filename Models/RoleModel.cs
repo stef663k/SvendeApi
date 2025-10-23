@@ -9,6 +9,7 @@ public class RoleModel
 {
     public Guid RoleId { get; set; }
     public string RoleName { get; set; }
+    public Collection<UserRole> UserRoles { get; set; }
 }
 public static class Roles
 {
