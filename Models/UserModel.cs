@@ -25,5 +25,5 @@ public class UserModel
     public Collection<CommentModel>? Comments { get; set; }
     public Collection<FollowerModel>? Followers { get; set; }
     public Collection<FollowerModel>? Followees { get; set; }
-
+    public Collection<LikeModel>? Likes { get; set; }
 }
