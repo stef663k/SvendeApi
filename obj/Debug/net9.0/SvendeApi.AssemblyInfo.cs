@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SvendeApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+95fc22511007d904137d6548a98af8c5c980c178")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c380992487da53c08b5ecd955ae6bbc773fd81a5")]
 [assembly: System.Reflection.AssemblyProductAttribute("SvendeApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SvendeApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
