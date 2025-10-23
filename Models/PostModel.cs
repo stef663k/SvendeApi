@@ -9,7 +9,7 @@ public class PostModel
 {
     public Guid PostId { get; set; }
     public Guid AuthorId { get; set; }
-    public UserModel Author { get; set; }
+    public UserModel? Author { get; set; }
     public string Content { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
