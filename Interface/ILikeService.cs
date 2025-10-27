@@ -8,8 +8,10 @@ namespace SvendeApi.Interface;
 
 public interface ILikeService
 {
-    Task<CommentDTO> CreateAsync(Guid userId, CreateCommentDTO createCommentDTO);
-    Task<IReadOnlyList<CommentDTO>> GetAlælAsync(int skip, int take);
-    Task<IReadOnlyList<CommentDTO>> GetForPostAsync(Guid postId, int skip, int take);
+    Task<LikeDTO> CreateAsync(Guid userId, CreateLikeDTO createLikeDTO);
+    Task<IReadOnlyList<LikeDTO>> GetAllAsync(int skip, int take);
+    Task<IReadOnlyList<LikeDTO>> GetForPostAsync(Guid postId, int skip, int take);
+    Task<IReadOnlyList<LikeDTO>> GetForUserAsync(Guid userId, int skip, int take);
     Task<bool> DeleteAsync(Guid likeId, Guid requestedUserId);
+    Task<bool> ExistsAsync(Guid userId, Guid postId);
 }
