@@ -11,6 +11,7 @@ public interface IPostService
 {
     Task<PostDTO> CreateAsync(Guid userId, CreatePostDTO createPostDTO);
     Task<PostDTO> GetAsync(Guid postId);
+    Task<PostDTO> UpdateAsync(Guid postId, UpdatePostDTO updatePostDTO, Guid requestedUserId);
     Task<IReadOnlyList<PostDTO>> GetAllAsync(int skip, int take);
     Task<IReadOnlyList<PostDTO>> GetUserPostsAsync(Guid userId, int skip, int take);
     Task<IReadOnlyList<PostDTO>> GetUserFeedAsync(Guid userId, int skip, int take);
