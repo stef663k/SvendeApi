@@ -12,15 +12,17 @@ public class PostMapper : Profile
 {
     public PostMapper()
     {
+        // Mapping fra PostModel til PostDTO, mapping af alle properties
         CreateMap<PostModel, PostDTO>();
 
+        // Mapping fra CreatePostDTO til PostModel, genererer nyt GUID, sætter CreatedAt til nu, og ignorerer felter der sættes i service
         CreateMap<CreatePostDTO, PostModel>()
             .ForMember(dest => dest.PostId, opt => opt.MapFrom(src => Guid.NewGuid()))
-            .ForMember(d => d.AuthorId, opt => opt.Ignore())
+            .ForMember(d => d.AuthorId, opt => opt.Ignore()) // Ignorer da dette sættes fra authenticated user i service
             .ForMember(d => d.Author, opt => opt.Ignore())
             .ForMember(d => d.Content, opt => opt.MapFrom(s => s.Content))
             .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore()) // Ignorer da dette sættes af databasen
             .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
     }
 }

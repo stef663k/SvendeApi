@@ -12,6 +12,7 @@ public class FollowMapper : Profile
 {
     public FollowMapper()
     {
+        // Mapping fra FollowerModel til FollowDTO, mapping af alle properties
         CreateMap<FollowerModel, FollowDTO>();
     }
 }

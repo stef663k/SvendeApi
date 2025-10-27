@@ -12,6 +12,7 @@ public class CommenMapper : Profile
 {
     public CommenMapper()
     {
+        // Mapping fra CommentModel til CommentDTO , mapping af alle properties
         CreateMap<CommentModel, CommentDTO>();
     }
 }

@@ -13,17 +13,21 @@ public class UserMapper : Profile
 {
     public UserMapper()
     {
+        // Mapping fra UserModel til UserDTO, konverterer UserRoles til en liste af role navne
         CreateMap<UserModel, UserDTO>()
             .ForMember(dest => dest.Roles, opt => opt.MapFrom(src =>
                 src.UserRoles.Select(ur => ur.Role.RoleName).ToList()));
 
+        // Mapping fra CreateUserDTO til UserModel, genererer nyt GUID og initialiserer tomme collections
         CreateMap<CreateUserDTO, UserModel>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => Guid.NewGuid()))
-            .ForMember(dest => dest.UserRoles, opt => opt.MapFrom(src => new Collection<UserRole>())); // Initialize empty collection
+            .ForMember(dest => dest.UserRoles, opt => opt.MapFrom(src => new Collection<UserRole>()));
 
+        // Mapping fra UpdateUserDTO til UserModel, opdaterer kun hvis værdi ikke er null
         CreateMap<UpdateUserDTO, UserModel>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
+        // Mapping fra UserModel til AuthResponseDTO, ignorerer Token og ExpiresAt da disse genereres i service
         CreateMap<UserModel, AuthResponseDTO>()
             .ForMember(dest => dest.Token, opt => opt.Ignore())
             .ForMember(dest => dest.ExpiresAt, opt => opt.Ignore())
@@ -31,8 +35,10 @@ public class UserMapper : Profile
     }
 }
 
+// Extension metoder for UserModel mapping, alternativ til AutoMapper
 public static class UserMapperExtensions
 {
+    // Konverterer UserModel til UserDTO, manuel mapping
     public static UserDTO ToUserDTO(this UserModel user)
     {
         return new UserDTO
@@ -45,6 +51,7 @@ public static class UserMapperExtensions
         };
     }
 
+    // Konverterer CreateUserDTO til UserModel, genererer nyt GUID og initialiserer tomme collections
     public static UserModel ToUserModel(this CreateUserDTO createUserDTO)
     {
         return new UserModel
@@ -58,6 +65,7 @@ public static class UserMapperExtensions
         };
     }
 
+    // Opdaterer UserModel med værdier fra UpdateUserDTO, opdaterer kun hvis værdi ikke er null
     public static void UpdateFromDTO(this UserModel user, UpdateUserDTO dto)
     {
         if(!string.IsNullOrEmpty(dto.FirstName))

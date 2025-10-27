@@ -12,6 +12,7 @@ public class LikeMapper : Profile
 {
     public LikeMapper()
     {
+        // Mapping fra LikeModel til LikeDTO, mapping af alle properties
         CreateMap<LikeModel, LikeDTO>();
     }
 }
