@@ -3,246 +3,253 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using SvendeApi.Data;
 using SvendeApi.Interface;
 using SvendeApi.Models;
+using SvendeApi.DTO;
 using SvendeApi.Utilities;
 
 namespace SvendeApi.Services;
 
 public class UserService : IUserService
 {
-    private readonly AppDbContext _context;
+	private readonly AppDbContext _context;
+	private readonly IMapper _mapper;
 
-    public UserService(AppDbContext context)
-    {
-        _context = context;
-    }
+	public UserService(AppDbContext context, IMapper mapper)
+	{
+		_context = context;
+		_mapper = mapper;
+	}
 
-    public async Task AddRoleAsync(Guid userId, string roleName)
-    {
-        var user = await _context.Users
-            .Include(u => u.UserRoles!)
-            .FirstOrDefaultAsync(u => u.UserId == userId);
+	public async Task AddRoleAsync(Guid userId, string roleName)
+	{
+		var user = await _context.Users
+			.Include(u => u.UserRoles!)
+			.FirstOrDefaultAsync(u => u.UserId == userId);
 
-        if (user == null)
-            throw new Exception("User not found");
+		if (user == null)
+			throw new Exception("User not found");
 
-        var name = roleName?.Trim();
-        if (string.IsNullOrEmpty(name))
-            return;
+		var name = roleName?.Trim();
+		if (string.IsNullOrEmpty(name))
+			return;
 
-        var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == name);
-        if (role == null)
-            throw new Exception("Role not found");
- 
-        if (!user.UserRoles.Any(ur=> ur.RoleId == role.RoleId))
-        {
-            user.UserRoles.Add(new UserRole { RoleId = role.RoleId, UserId = userId });
-            await _context.SaveChangesAsync();
-        }
-    }
+		var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == name);
+		if (role == null)
+			throw new Exception("Role not found");
 
-    public async Task AssignRoleAsync(Guid userId, IEnumerable<string> roleNames)
-    {
-        var user = await _context.Users
-            .Include(u => u.UserRoles!)
-            .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.UserId == userId);
-        if (user == null)
-            throw new Exception("User not found");
- 
-        var names = (roleNames ?? Enumerable.Empty<string>())
-            .Where(n => !string.IsNullOrWhiteSpace(n))
-            .Select(n => n.Trim())
-            .Distinct();
- 
-        var roles = await _context.Roles.Where(r => names.Contains(r.RoleName))
-            .ToListAsync();
-            
-        user.UserRoles.Clear();
-        foreach (var role in roles)
-        {
-            user.UserRoles.Add(new UserRole { RoleId = role.RoleId, UserId = userId });
-        }
-        await _context.SaveChangesAsync();
-    }
- 
-    public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-        if (user == null)
-            throw new Exception("User not found");
- 
-        if (!PasswordHasher.VerifyPassword(currentPassword, user.Password))
-            throw new UnauthorizedAccessException("Invalid current password");
- 
-        user.Password = PasswordHasher.HashPassword(newPassword);
-        await _context.SaveChangesAsync();
-    }
+		if (!user.UserRoles.Any(ur=> ur.RoleId == role.RoleId))
+		{
+			user.UserRoles.Add(new UserRole { RoleId = role.RoleId, UserId = userId });
+			await _context.SaveChangesAsync();
+		}
+	}
 
-    public async Task<UserModel> CreateAsync(UserModel entity)
-    {
-        if (entity.UserId == Guid.Empty)
-            entity.UserId = Guid.NewGuid();
- 
-        if (!string.IsNullOrWhiteSpace(entity.Email))
-            entity.Email = entity.Email.Trim();
- 
-        if (!string.IsNullOrWhiteSpace(entity.Password))
-        {
-            if (!PasswordHasher.IsWellFormedHash(entity.Password))
-                entity.Password = PasswordHasher.HashPassword(entity.Password);
-        }
- 
-        _context.Users.Add(entity);
-        await _context.SaveChangesAsync();
-        return entity;
- 
-    }
+	public async Task AssignRoleAsync(Guid userId, IEnumerable<string> roleNames)
+	{
+		var user = await _context.Users
+			.Include(u => u.UserRoles!)
+			.ThenInclude(ur => ur.Role)
+			.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new Exception("User not found");
 
-    public async Task DeactivateAsync(Guid id)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
-        if (user == null)
-            throw new Exception("User not found");
-        if (!user.IsActive)
-            return;
-        user.IsActive = false;
-        await _context.SaveChangesAsync();
-    }
+		var names = (roleNames ?? Enumerable.Empty<string>())
+			.Where(n => !string.IsNullOrWhiteSpace(n))
+			.Select(n => n.Trim())
+			.Distinct();
 
-    public async Task<UserModel> DeleteAsync(UserModel entity)
-    {
-        _context.Users.Remove(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
+		var roles = await _context.Roles.Where(r => names.Contains(r.RoleName))
+			.ToListAsync();
+			
+		user.UserRoles.Clear();
+		foreach (var role in roles)
+		{
+			user.UserRoles.Add(new UserRole { RoleId = role.RoleId, UserId = userId });
+		}
+		await _context.SaveChangesAsync();
+	}
 
-    public async Task<bool> EmailExistsAsync(string email)
-    {
-        var emailAddress = email.Trim();
-        if (string.IsNullOrWhiteSpace(emailAddress))
-            return false;
-        return await _context.Users.AnyAsync(u => u.Email == emailAddress);
-    }
+	public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new Exception("User not found");
 
-    public async Task<IEnumerable<UserModel>> GetAllAsync()
-    {
-        return await _context.Users.AsNoTracking().ToListAsync() ?? Enumerable.Empty<UserModel>();
-    }
+		if (!PasswordHasher.VerifyPassword(currentPassword, user.Password))
+			throw new UnauthorizedAccessException("Invalid current password");
 
-    public async Task<UserModel> GetByEmailAsync(string email)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        if (user == null)
-            throw new Exception("User not found");
-        return user;
-    }
+		user.Password = PasswordHasher.HashPassword(newPassword);
+		await _context.SaveChangesAsync();
+	}
 
-    public async Task<UserModel?> GetByIdAsync(Guid id)
-    {
-        return await _context.Users.FindAsync(id);
- 
-    }
+	public async Task<UserDTO> CreateAsync(CreateUserDTO dto)
+	{
+		var user = _mapper.Map<UserModel>(dto);
+		if (user.UserId == Guid.Empty)
+			user.UserId = Guid.NewGuid();
 
-    public async Task<IEnumerable<UserModel>> GetByRoleAsync(string role)
-    {
-        var name = role.Trim();
-        if (string.IsNullOrWhiteSpace(name))
-            return Enumerable.Empty<UserModel>();
- 
-        return await _context.Users
-            .Include(u => u.UserRoles!)
-            .ThenInclude(ur => ur.Role)
-            .Where(u => u.UserRoles.Any(ur => ur.Role.RoleName == name))
-            .AsNoTracking()
-            .ToListAsync() ?? Enumerable.Empty<UserModel>();
-    }
+		user.Email = user.Email?.Trim()!;
+		user.Password = PasswordHasher.HashPassword(user.Password);
 
-    public async Task<UserModel> GetByRolesByIdAsync(Guid id)
-    {
-        var user = await _context.Users
-            .Include(u => u.UserRoles!)
-            .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.UserId == id);
-        if (user == null)
-            throw new Exception("User not found");
-        return user;
-    }
+		_context.Users.Add(user);
+		await _context.SaveChangesAsync();
+		return _mapper.Map<UserDTO>(user);
+	}
 
-    public async Task<UserModel> GetByUsernameAsync(string username)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == username);
-        if (user == null)
-            throw new KeyNotFoundException("User not found");
-        return user;
-    }
+	public async Task DeactivateAsync(Guid id)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+		if (user == null)
+			throw new Exception("User not found");
+		if (!user.IsActive)
+			return;
+		user.IsActive = false;
+		await _context.SaveChangesAsync();
+	}
 
-    public async Task ReactivateAsync(Guid id)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
-        if (user == null)
-            throw new KeyNotFoundException("User not found");
-        if (user.IsActive)
-            return;
-        user.IsActive = true;
-        await _context.SaveChangesAsync();
-    }
+	public async Task<UserDTO> DeleteAsync(Guid id)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+		_context.Users.Remove(user);
+		await _context.SaveChangesAsync();
+		return _mapper.Map<UserDTO>(user);
+	}
 
-    public async Task RemoveRoleAsync(Guid userId, string roleName)
-    {
-        var user = await _context.Users
-            .Include(u => u.UserRoles!)
-            .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.UserId == userId);
-        if (user == null)
-            throw new KeyNotFoundException("User not found");
- 
-        var name = roleName.Trim();
-        if (string.IsNullOrWhiteSpace(name))
-            return;
- 
-        var roleRemove = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == name);
-        if (roleRemove != null)
-        {
-            var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleRemove.RoleId);
-            if (userRole != null)
-            {
-                user.UserRoles.Remove(userRole);
-                await _context.SaveChangesAsync();
-            }
-        }
-    }
+	public async Task<bool> EmailExistsAsync(string email)
+	{
+		var emailAddress = email.Trim();
+		if (string.IsNullOrWhiteSpace(emailAddress))
+			return false;
+		return await _context.Users.AnyAsync(u => u.Email == emailAddress);
+	}
 
-    public async Task ResetPasswordAsync(Guid userId, string newPassword)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-        if (user == null)
-            throw new KeyNotFoundException("User not found");
+	public async Task<IEnumerable<UserDTO>> GetAllAsync()
+	{
+		var users = await _context.Users.AsNoTracking().ToListAsync();
+		return _mapper.Map<IEnumerable<UserDTO>>(users);
+	}
 
-        user.Password = PasswordHasher.HashPassword(newPassword);
-        await _context.SaveChangesAsync();
-    }
+	public async Task<UserDTO> GetByEmailAsync(string email)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+		if (user == null)
+			throw new Exception("User not found");
+		return _mapper.Map<UserDTO>(user);
+	}
 
-    public async Task<UserModel> UpdateAsync(UserModel entity)
-    {
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == entity.UserId);
-        if (existingUser == null)
-            throw new KeyNotFoundException("User not found");
+	public async Task<UserDTO> GetByIdAsync(Guid id)
+	{
+		var user = await _context.Users.FindAsync(id);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+		return _mapper.Map<UserDTO>(user);
+	}
 
-        existingUser.FirstName = entity.FirstName;
-        existingUser.LastName = entity.LastName;
-        existingUser.Email = entity.Email;
-        await _context.SaveChangesAsync();
-        return existingUser;
-    }
+	public async Task<IEnumerable<UserDTO>> GetByRoleAsync(string role)
+	{
+		var name = role.Trim();
+		if (string.IsNullOrWhiteSpace(name))
+			return Enumerable.Empty<UserDTO>();
 
-    public async Task<bool> UsernameExistsAsync(string username)
-    {
-        var emailAddress = username.Trim();
-        if (string.IsNullOrWhiteSpace(emailAddress))
-            return false;
-        return await _context.Users.AnyAsync(u => u.Email == emailAddress);
-    }
+		var users = await _context.Users
+			.Include(u => u.UserRoles!)
+			.ThenInclude(ur => ur.Role)
+			.Where(u => u.UserRoles.Any(ur => ur.Role.RoleName == name))
+			.AsNoTracking()
+			.ToListAsync();
+		return _mapper.Map<IEnumerable<UserDTO>>(users);
+	}
+
+	public async Task<UserDTO> GetByRolesByIdAsync(Guid id)
+	{
+		var user = await _context.Users
+			.Include(u => u.UserRoles!)
+			.ThenInclude(ur => ur.Role)
+			.FirstOrDefaultAsync(u => u.UserId == id);
+		if (user == null)
+			throw new Exception("User not found");
+		return _mapper.Map<UserDTO>(user);
+	}
+
+	public async Task<UserDTO> GetByUsernameAsync(string username)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == username);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+		return _mapper.Map<UserDTO>(user);
+	}
+
+	public async Task ReactivateAsync(Guid id)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+		if (user.IsActive)
+			return;
+		user.IsActive = true;
+		await _context.SaveChangesAsync();
+	}
+
+	public async Task RemoveRoleAsync(Guid userId, string roleName)
+	{
+		var user = await _context.Users
+			.Include(u => u.UserRoles!)
+			.ThenInclude(ur => ur.Role)
+			.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+
+		var name = roleName.Trim();
+		if (string.IsNullOrWhiteSpace(name))
+			return;
+
+		var roleRemove = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == name);
+		if (roleRemove != null)
+		{
+			var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleRemove.RoleId);
+			if (userRole != null)
+			{
+				user.UserRoles.Remove(userRole);
+				await _context.SaveChangesAsync();
+			}
+		}
+	}
+
+	public async Task ResetPasswordAsync(Guid userId, string newPassword)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+
+		user.Password = PasswordHasher.HashPassword(newPassword);
+		await _context.SaveChangesAsync();
+	}
+
+	public async Task<UserDTO> UpdateAsync(Guid id, UpdateUserDTO dto)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+
+		// Only update provided fields
+		if (!string.IsNullOrWhiteSpace(dto.FirstName)) user.FirstName = dto.FirstName;
+		if (!string.IsNullOrWhiteSpace(dto.LastName))  user.LastName  = dto.LastName;
+		if (!string.IsNullOrWhiteSpace(dto.Email))     user.Email     = dto.Email.Trim();
+
+		await _context.SaveChangesAsync();
+		return _mapper.Map<UserDTO>(user);
+	}
+
+	public async Task<bool> UsernameExistsAsync(string username)
+	{
+		var emailAddress = username.Trim();
+		if (string.IsNullOrWhiteSpace(emailAddress))
+			return false;
+		return await _context.Users.AnyAsync(u => u.Email == emailAddress);
+	}
 }
