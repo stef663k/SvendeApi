@@ -1,18 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using SvendeApi.Models;
+using SvendeApi.DTO;
 
 namespace SvendeApi.Interface;
 
-public interface IRoleService : IGenericInterface<RoleModel>
+public interface IRoleService
 {
-    Task<RoleModel> GetByNameAsync(string roleName);
-    Task<bool> NameExistsAsync(string roleName);
-    Task<IEnumerable<RoleModel>> GetAllOrderedAsync();
+    Task<RoleDTO> GetByIdAsync(Guid id);
+    Task<RoleDTO> GetByNameAsync(string roleName);
+    Task<IEnumerable<RoleDTO>> GetAllAsync();
+    Task<IEnumerable<RoleDTO>> GetAllOrderedAsync();
     Task<IEnumerable<string>> GetAllNameAsync();
-    Task<RoleModel> CreateIfNotExistsAsync(string roleName);
-    Task<bool> DeleteByNameAsync(string roleName);
     Task<IEnumerable<string>> GetSuggestedRoleNamesAsync(string roleName);
+
+    Task<RoleDTO> CreateAsync(CreateRoleDTO dto);
+    Task<RoleDTO> CreateIfNotExistsAsync(string roleName);
+    Task<RoleDTO> UpdateAsync(Guid id, UpdateRoleDTO dto);
+    Task<RoleDTO> DeleteAsync(Guid id);
+    Task<bool> DeleteByNameAsync(string roleName);
+
+    Task<bool> NameExistsAsync(string roleName);
 }
