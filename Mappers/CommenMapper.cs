@@ -14,5 +14,7 @@ public class CommenMapper : Profile
     {
         // Mapping fra CommentModel til CommentDTO , mapping af alle properties
         CreateMap<CommentModel, CommentDTO>();
+        // Mapping fra CreateCommentDTO til CommentModel
+        CreateMap<CreateCommentDTO, CommentModel>();
     }
 }

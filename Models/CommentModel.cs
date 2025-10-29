@@ -16,6 +16,6 @@ public class CommentModel
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
-    public Guid ParentCommentId { get; set; }
+    public Guid? ParentCommentId { get; set; }
     public CommentModel? ParentComment { get; set; }
 }
