@@ -11,4 +11,5 @@ public class UserRole
     public UserModel? User { get; set; }
     public Guid RoleId { get; set; }
     public RoleModel? Role { get; set; }
+    public bool ProcessingRestricted { get; set; } = false;
 }

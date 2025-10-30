@@ -14,6 +14,7 @@ public class UserDTO
     public string Email { get; set; }
     public List<string> Roles { get; set; } = new List<string>();
     public string FullName => $"{FirstName} {LastName}".Trim();
+    public bool ProcessingRestricted { get; set; }
 }
 
 public class CreateUserDTO
@@ -46,6 +47,8 @@ public class UpdateUserDTO
     [EmailAddress]
     public string? Email { get; set; }
     public bool IsActive { get; set; } = true;
+    public List<string>? Roles { get; set; }
+    public bool ProcessingRestricted { get; set; }
 }
 
 public class LoginDTO
