@@ -99,6 +99,16 @@ public class CommentService : ICommentService
         .ToListAsync();
     }
 
+    public async Task<IReadOnlyList<CommentDTO>> GetForUserAsync(Guid userId, int skip, int take)
+    {
+        return await _context.Comments.Where(c => c.AuthorId == userId && !c.IsDeleted)
+            .OrderByDescending(c => c.CreatedAt)
+            .Skip(skip)
+            .Take(take)
+            .ProjectTo<CommentDTO>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
+
     public async Task<CommentDTO> UpdateAsync(Guid commentId, UpdateCommentDTO updateCommentDTO, Guid requestedUserId)
     {
         var comment = await _context.Comments.FirstOrDefaultAsync(c => c.CommentId == commentId);

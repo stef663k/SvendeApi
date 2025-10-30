@@ -19,7 +19,7 @@ namespace SvendeApi.Controllers;
 [Route("api/[controller]")]
 [EnableCors("Default")]
 [Authorize]
-public class PostController : Controller
+public class PostController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IPostService _postService;
@@ -88,7 +88,7 @@ public class PostController : Controller
     {
         var userId = GetCurrentUserId();
         var deleted = await _postService.DeleteAsync(postId, userId);
-        if (deleted)
+        if (!deleted)
             return NotFound(new { message = "Post not found" });
         return NoContent();
     }

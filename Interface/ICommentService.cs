@@ -13,5 +13,6 @@ public interface ICommentService
     Task<CommentDTO> UpdateAsync(Guid commentId, UpdateCommentDTO updateCommentDTO, Guid requestedUserId);
     Task<IReadOnlyList<CommentDTO>> GetAllAsync(int skip, int take);
     Task<IReadOnlyList<CommentDTO>> GetForPostAsync(Guid postId, int skip, int take);
+    Task<IReadOnlyList<CommentDTO>> GetForUserAsync(Guid userId, int skip, int take);
     Task<bool> DeleteAsync(Guid commentId, Guid requestedUserId);
 }

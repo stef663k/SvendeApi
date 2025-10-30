@@ -24,13 +24,19 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly IRoleService _roleService;
     private readonly IMapper _mapper;
+    private readonly IPostService _postService;
+    private readonly ICommentService _commentService;
+    private readonly ILikeService _likeService;
 
-    public UserController(AppDbContext context, IUserService userService, IRoleService roleService, IMapper mapper)
+    public UserController(AppDbContext context, IUserService userService, IRoleService roleService, IMapper mapper, IPostService postService, ICommentService commentService, ILikeService likeService)
     {
         _context = context;
         _userService = userService;
         _roleService = roleService;
         _mapper = mapper;
+        _postService = postService;
+        _commentService = commentService;
+        _likeService = likeService;
     }
 
     [HttpGet]
@@ -268,16 +274,23 @@ public class UserController : ControllerBase
         {
             var currentUserId = GetCurrentUserId();
             if (id != currentUserId && !User.IsInRole("Admin"))
-            {
                 return Forbid("You can only access your own data unless you're an admin");
-            }
+
             var user = await _userService.GetByIdAsync(id);
             if (user == null)
-            {
                 return NotFound(new { message = "User not found" });
-            }
-            var export = _mapper.Map<UserDTO>(user);
-            // You can add more personal info, history, or activity here if desired.
+
+            var posts = await _postService.GetUserPostsAsync(id, 0, int.MaxValue);
+            var comments = await _commentService.GetForUserAsync(id, 0, int.MaxValue);
+            var likes = await _likeService.GetForUserAsync(id, 0, int.MaxValue);
+
+            var export = new UserDataExport
+            {
+                User = _mapper.Map<UserDTO>(user),
+                Posts = posts.ToList(),
+                Comments = comments.ToList(),
+                Likes = likes.ToList()
+            };
             return Ok(export);
         }
         catch (Exception ex)

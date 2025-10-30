@@ -19,7 +19,7 @@ namespace SvendeApi.Controllers;
 [Route("api/[controller]")]
 [EnableCors("Default")]
 [Authorize(Roles = "Admin")]
-public class RoleController : Controller
+public class RoleController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IRoleService _roleService;
