@@ -46,7 +46,7 @@ public class LikeService : ILikeService
         _context.Likes.Add(entity);
         await _context.SaveChangesAsync();
         return _mapper.Map<LikeDTO>(entity);
-        
+
     }
 
     public async Task<bool> DeleteAsync(Guid likeId, Guid requestedUserId)
@@ -95,5 +95,11 @@ public class LikeService : ILikeService
         .Take(take)
         .ProjectTo<LikeDTO>(_mapper.ConfigurationProvider)
         .ToListAsync();
+    }
+    
+
+    public async Task<int> GetLikeCountAsync(Guid postId)
+    {
+        return await _context.Likes.CountAsync(l => l.PostId == postId);
     }
 }
