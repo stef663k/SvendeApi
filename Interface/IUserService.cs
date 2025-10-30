@@ -29,4 +29,6 @@ public interface IUserService
 
     Task<bool> EmailExistsAsync(string email);
     Task<bool> UsernameExistsAsync(string username);
+    Task SetProcessingRestrictedAsync(Guid userId, bool restricted);
+    Task ForgetUserAsync(Guid userId);
 }

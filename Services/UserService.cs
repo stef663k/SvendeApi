@@ -40,7 +40,7 @@ public class UserService : IUserService
 		if (role == null)
 			throw new Exception("Role not found");
 
-		if (!user.UserRoles.Any(ur=> ur.RoleId == role.RoleId))
+		if (!user.UserRoles.Any(ur => ur.RoleId == role.RoleId))
 		{
 			user.UserRoles.Add(new UserRole { RoleId = role.RoleId, UserId = userId });
 			await _context.SaveChangesAsync();
@@ -63,7 +63,7 @@ public class UserService : IUserService
 
 		var roles = await _context.Roles.Where(r => names.Contains(r.RoleName))
 			.ToListAsync();
-			
+
 		user.UserRoles.Clear();
 		foreach (var role in roles)
 		{
@@ -238,8 +238,8 @@ public class UserService : IUserService
 
 		// Only update provided fields
 		if (!string.IsNullOrWhiteSpace(dto.FirstName)) user.FirstName = dto.FirstName;
-		if (!string.IsNullOrWhiteSpace(dto.LastName))  user.LastName  = dto.LastName;
-		if (!string.IsNullOrWhiteSpace(dto.Email))     user.Email     = dto.Email.Trim();
+		if (!string.IsNullOrWhiteSpace(dto.LastName)) user.LastName = dto.LastName;
+		if (!string.IsNullOrWhiteSpace(dto.Email)) user.Email = dto.Email.Trim();
 
 		await _context.SaveChangesAsync();
 		return _mapper.Map<UserDTO>(user);
@@ -251,5 +251,21 @@ public class UserService : IUserService
 		if (string.IsNullOrWhiteSpace(emailAddress))
 			return false;
 		return await _context.Users.AnyAsync(u => u.Email == emailAddress);
+	}
+	public async Task SetProcessingRestrictedAsync(Guid userId, bool restricted)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+		user.ProcessingRestricted = restricted;
+		await _context.SaveChangesAsync();
+	}
+	public async Task ForgetUserAsync(Guid userId)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+		user.Password = null;
+		await _context.SaveChangesAsync();
 	}
 }

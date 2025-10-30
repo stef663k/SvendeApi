@@ -26,4 +26,5 @@ public class UserModel
     public Collection<FollowerModel>? Followers { get; set; }
     public Collection<FollowerModel>? Followees { get; set; }
     public Collection<LikeModel>? Likes { get; set; }
+    public bool ProcessingRestricted { get; set; } = false;
 }
