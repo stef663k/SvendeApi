@@ -43,7 +43,7 @@ public class AuthService : IAuthService
             .AsNoTracking()
             .Include(u => u.UserRoles!)
             .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Email.ToLowerInvariant() == email);
+            .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
         {

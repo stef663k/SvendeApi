@@ -107,19 +107,21 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<FeedHub>("/hubs/feed");
 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//     var defaultRoles = new[] { "Admin", "User", "Manager" };
-//     foreach (var name in defaultRoles)
-//     {
-//         if (!db.Roles.Any(r => r.RoleName == name))
-//         {
-//             db.Roles.Add(new RoleModel { RoleId = Guid.NewGuid(), RoleName = name });
-//         }
-//     }
-//     db.SaveChanges();
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync(); 
+
+    await db.Database.ExecuteSqlRawAsync(@"
+IF NOT EXISTS (SELECT 1 FROM [Roles] WHERE [RoleName] = 'Admin')
+    INSERT INTO [Roles] ([RoleId], [RoleName]) VALUES ('11111111-1111-1111-1111-111111111111', 'Admin');
+IF NOT EXISTS (SELECT 1 FROM [Roles] WHERE [RoleName] = 'User')
+    INSERT INTO [Roles] ([RoleId], [RoleName]) VALUES ('22222222-2222-2222-2222-222222222222', 'User');
+IF NOT EXISTS (SELECT 1 FROM [Roles] WHERE [RoleName] = 'Manager')
+    INSERT INTO [Roles] ([RoleId], [RoleName]) VALUES ('33333333-3333-3333-3333-333333333333', 'Manager');
+");
+}
+
 
 app.Run();
 
