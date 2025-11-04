@@ -14,6 +14,6 @@ public class PostModel
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
-    public Guid ParentPostId { get; set; }
+    public Guid? ParentPostId { get; set; }
     public PostModel? ParentPost { get; set; }
 }

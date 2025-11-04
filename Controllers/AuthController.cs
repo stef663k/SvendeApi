@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
             var result = await _authService.RefreshTokenAsync(token, ipAddress);
             var cookieOptions = BuildRefreshCookieOptions(result.ExpiresAt);
             Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
-            return Ok(new { message = "Session refreshed", user = result.User });
+            return Ok(result);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -63,7 +63,7 @@ public class AuthController : ControllerBase
             var result = await _authService.LoginAsync(loginDTO, ipAddress);
             var cookieOptions = BuildRefreshCookieOptions(result.ExpiresAt);
             Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
-            return Ok(new { message = "Login successful", user = result.User });
+            return Ok(result);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -93,7 +93,7 @@ public class AuthController : ControllerBase
             var result = await _authService.RefreshTokenAsync(token, ipAddress);
             var cookieOptions = BuildRefreshCookieOptions(result.ExpiresAt);
             Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
-            return Ok(new { message = "Session refreshed", user = result.User });
+            return Ok(result);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -155,7 +155,7 @@ public class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = expiresAtUtc,
             Path = "/"
         };

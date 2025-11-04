@@ -79,7 +79,8 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.ParentPost)
                 .WithMany()
                 .HasForeignKey(e => e.ParentPostId)
-                .OnDelete(DeleteBehavior.Restrict); // Self-referencing for reposts
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict); // Self-referencing for reposts (optional)
         });
 
         // Konfiguration af CommentModel tabellen

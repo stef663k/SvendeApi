@@ -21,6 +21,7 @@ public class PostMapper : Profile
             .ForMember(d => d.AuthorId, opt => opt.Ignore()) // Ignorer da dette sættes fra authenticated user i service
             .ForMember(d => d.Author, opt => opt.Ignore())
             .ForMember(d => d.Content, opt => opt.MapFrom(s => s.Content))
+            .ForMember(d => d.ParentPostId, opt => opt.MapFrom(s => s.ParentPostId))
             .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
             .ForMember(d => d.UpdatedAt, opt => opt.Ignore()) // Ignorer da dette sættes af databasen
             .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));

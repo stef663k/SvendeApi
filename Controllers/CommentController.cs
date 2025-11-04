@@ -47,7 +47,7 @@ public class CommentController : ControllerBase
 
     }
 
-    [HttpPost("{commentId}")]
+    [HttpPost]
     [Consumes("application/json")]
     public async Task<IActionResult> CreateComment([FromBody] CreateCommentDTO dto)
     {
