@@ -24,7 +24,9 @@ builder.Services.AddCors(options =>
                 "http://localhost:5173",
                 "https://localhost:5173",
                 "https://agora-6b7vs2z24-stefans-projects-84d8d2f6.vercel.app",
-                "https://agora-bafkvzacp-stefans-projects-84d8d2f6.vercel.app"
+                "https://agora-bafkvzacp-stefans-projects-84d8d2f6.vercel.app",
+                "https://agora-gray-six.vercel.app"                 // add this
+
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
