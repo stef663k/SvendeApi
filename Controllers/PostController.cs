@@ -88,7 +88,7 @@ public class PostController : Controller
     {
         var userId = GetCurrentUserId();
         var deleted = await _postService.DeleteAsync(postId, userId);
-        if (deleted)
+        if (!deleted)
             return NotFound(new { message = "Post not found" });
         return NoContent();
     }
