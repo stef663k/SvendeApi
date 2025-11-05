@@ -67,10 +67,25 @@ public class CommentController : ControllerBase
     public async Task<IActionResult> DeleteComment(Guid commentId)
     {
         var userId = GetCurrentUserId();
-        var deleted = await _commentService.DeleteAsync(commentId, userId);
-        if (!deleted)
+        var isAdmin = User.IsInRole("Admin");
+        try
+        {
+            var comment = await _commentService.GetAsync(commentId);
+            if (comment == null)
+                return NotFound(new { message = "Comment not found" });
+
+            if (!isAdmin && comment.AuthorId != userId)
+                return Forbid();
+
+            var deleted = await _commentService.DeleteAsync(commentId, userId);
+            if (!deleted)
+                return NotFound(new { message = "Comment not found" });
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound(new { message = "Comment not found" });
-        return NoContent();
+        }
     }
 
     private Guid GetCurrentUserId()

@@ -87,6 +87,15 @@ public class PostController : Controller
     public async Task<IActionResult> DeletePost(Guid postId)
     {
         var userId = GetCurrentUserId();
+        var isAdmin = User.IsInRole("Admin");
+
+        var post = await _postService.GetAsync(postId);
+        if (post == null)
+            return NotFound(new { message = "Post not found" });
+
+        if (!isAdmin && post.AuthorId != userId)
+            return Forbid();
+
         var deleted = await _postService.DeleteAsync(postId, userId);
         if (!deleted)
             return NotFound(new { message = "Post not found" });

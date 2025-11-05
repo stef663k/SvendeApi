@@ -84,6 +84,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}/public")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPublicUser(Guid id)
     {
         try
