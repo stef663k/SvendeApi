@@ -23,8 +23,6 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:5173",
                 "https://localhost:5173",
-                "https://agora-6b7vs2z24-stefans-projects-84d8d2f6.vercel.app",
-                "https://agora-bafkvzacp-stefans-projects-84d8d2f6.vercel.app",
                 "https://agora-gray-six.vercel.app"                
 
             )
@@ -56,7 +54,8 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+var jwtKey = jwtSettings.GetValue<string>("Key") ?? throw new InvalidOperationException("Jwt:Key is not configured");
+var key = Encoding.ASCII.GetBytes(jwtKey);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

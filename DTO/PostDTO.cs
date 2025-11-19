@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using SvendeApi.Utilities;
 
 namespace SvendeApi.DTO;
 
@@ -22,6 +23,7 @@ public class CreatePostDTO
 {
     [Required]
     [MaxLength(1000)]
+    // [NoEmojiOnly(ErrorMessage = "Content cannot only contain emojis")]
     public string Content { get; set; }
     public Guid? ParentPostId { get; set; }
 }
