@@ -27,4 +27,5 @@ public class UserModel
     public Collection<FollowerModel>? Followees { get; set; }
     public Collection<LikeModel>? Likes { get; set; }
     public bool ProcessingRestricted { get; set; } = false;
+    public DateTime LastActiveAt { get; set; } = DateTime.UtcNow;
 }

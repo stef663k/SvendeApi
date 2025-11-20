@@ -33,6 +33,8 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Password).IsRequired().HasMaxLength(255);
             entity.Property(e => e.FirstName).HasMaxLength(100);
             entity.Property(e => e.LastName).HasMaxLength(100);
+            entity.Property(e => e.LastActiveAt)
+                .HasDefaultValueSql("GETUTCDATE()");
             entity.HasIndex(e => e.Email).IsUnique(); // Sikrer at email er unik
         });
 

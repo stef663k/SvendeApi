@@ -52,6 +52,7 @@ builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddHostedService<InactiveUserCleanupService>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSettings.GetValue<string>("Key") ?? throw new InvalidOperationException("Jwt:Key is not configured");

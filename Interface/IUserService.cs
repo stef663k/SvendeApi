@@ -31,4 +31,6 @@ public interface IUserService
     Task<bool> UsernameExistsAsync(string username);
     Task SetProcessingRestrictedAsync(Guid userId, bool restricted);
     Task ForgetUserAsync(Guid userId);
+    Task UpdateLastActiveAtAsync(Guid userId);
+    Task<int> DeleteInactiveUsersAsync();
 }

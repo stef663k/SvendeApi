@@ -268,4 +268,33 @@ public class UserService : IUserService
 		user.Password = null;
 		await _context.SaveChangesAsync();
 	}
+	public async Task UpdateLastActiveAtAsync(Guid userId)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+		if (user == null)
+			throw new KeyNotFoundException("User not found");
+
+		var now = DateTime.UtcNow;
+		if (user.LastActiveAt >= now.AddMinutes(-1))
+			return;
+
+		user.LastActiveAt = now;
+		await _context.SaveChangesAsync();
+	}
+
+	public async Task<int> DeleteInactiveUsersAsync()
+	{
+		var inactivityThreshold = TimeSpan.FromDays(180);
+		var cutoff = DateTime.UtcNow.Subtract(inactivityThreshold);
+		var usersToRemove = await _context.Users
+			.Where(u => !u.IsActive && u.LastActiveAt < cutoff)
+			.ToListAsync();
+
+		if (!usersToRemove.Any())
+			return 0;
+
+		_context.Users.RemoveRange(usersToRemove);
+		await _context.SaveChangesAsync();
+		return usersToRemove.Count;
+	}
 }
